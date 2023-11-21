@@ -8,7 +8,9 @@ const sceneComponent = new OBC.SimpleScene(viewer)
 sceneComponent.setup()
 viewer.scene = sceneComponent
 
-const viewerContainer = document.getElementById("Dutch-sharepoint") as HTMLDivElement
+const viewerContainer = document.getElementById(
+  "Dutch-sharepoint"
+  ) as HTMLDivElement;
 const rendererComponent = new OBC.PostproductionRenderer(viewer, viewerContainer)
 viewer.renderer = rendererComponent
 const postproduction = rendererComponent.postproduction
@@ -26,6 +28,11 @@ const grid = new OBC.SimpleGrid(viewer, new THREE.Color(0x666666))
 postproduction.customEffects.excludedMeshes.push(grid.get())
 
 const ifcLoader = new OBC.FragmentIfcLoader(viewer)
+
+ifcLoader.settings.wasm ={
+  absolute: true,
+  path: "https://unpkg.com/web-ifc@0.0.44"
+}
 
 const highlighter = new OBC.FragmentHighlighter(viewer)
 highlighter.setup()
@@ -51,3 +58,13 @@ mainToolbar.addChild(
   propertiesProcessor.uiElement.get("main")
 )
 viewer.ui.addToolbar(mainToolbar)
+
+window.addEventListener("thatOpen", async (event: any) => {
+ const{name, payload} = event.detail;
+ if(name === "openModel") {
+  const {name, buffer} = payload;
+  const model = await ifcLoader.load(buffer, name);
+  const scene = viewer.scene.get();
+  scene.add(model);
+ }
+});
